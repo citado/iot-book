@@ -1,0 +1,36 @@
+---
+name: latex
+on:
+  push:
+    paths:
+      - .github/workflows/latex.yaml
+      - ./**
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: compile in latex
+        uses: xu-cheng/latex-action@v2
+        with:
+          latexmk_use_xelatex: true
+          working_directory: .
+          root_file: main.tex
+      - name: upload
+        uses: actions/upload-artifact@v3
+        if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
+        with:
+          path: main.pdf
+          name: book
+          retention-days: 1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: rename
+        run: mv main.pdf book.pdf
+      - name: release
+        uses: ncipollo/release-action@v1
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        with:
+          artifact: book.pdf
+          allowUpdates: true
+          token: ${{ secrets.GITHUB_TOKEN }}
