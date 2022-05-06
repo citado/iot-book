@@ -2,9 +2,6 @@
 name: latex
 on:
   push:
-    paths:
-      - .github/workflows/latex.yaml
-      - ./**
 jobs:
   build:
     runs-on: ubuntu-latest
